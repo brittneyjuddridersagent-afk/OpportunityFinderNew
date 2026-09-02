@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Opportunities">
+<title>Opportunity Finder</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#f0f0ed;color:#1a1a1a;font-family:'Barlow',sans-serif;min-height:100vh;padding-bottom:40px}
+
+.header{background:#fff;border-bottom:1px solid #e5e5e0;padding:14px 16px 12px}
+.eyebrow{font-family:'DM Mono',monospace;font-size:9px;color:#888;letter-spacing:3px;text-transform:uppercase;margin-bottom:3px}
+.title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#111}
+
+.url-section{background:#fff;border-bottom:1px solid #e5e5e0;padding:12px 16px}
+.url-section label{font-family:'DM Mono',monospace;font-size:9px;color:#888;letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:4px}
+.url-section input{width:100%;background:#f5f5f3;border:1px solid #e5e5e0;border-radius:8px;padding:9px 11px;color:#111;font-family:'DM Mono',monospace;font-size:11px;outline:none}
+
+.controls{background:#fff;border-bottom:1px solid #e5e5e0;padding:10px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{background:#1a1a1a;border:none;border-radius:8px;padding:10px 16px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px}
+.btn:active{opacity:.8}
+.btn.secondary{background:#f0f0ed;color:#1a1a1a;border:1px solid #ddd}
+.count-badge{font-family:'DM Mono',monospace;font-size:11px;color:#888;margin-left:auto}
+
+.list{padding:10px 12px}
+
+.card{background:#fff;border-radius:10px;border:1px solid #e5e5e0;overflow:hidden;border-left-width:3px;margin-bottom:8px}
+.card.red   {border-left-color:#e24b4a}
+.card.amber {border-left-color:#ef9f27}
+.card.green {border-left-color:#639922}
+.card.called{opacity:.45}
+.card.dismissed{display:none}
+
+.card-top{display:flex;align-items:stretch}
+.days-col{width:54px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;border-right:1px solid #f0f0ed}
+.days-num{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;line-height:1}
+.days-lbl{font-family:'DM Mono',monospace;font-size:8px;color:#aaa;letter-spacing:1px;margin-top:1px}
+.red  .days-num{color:#e24b4a}
+.amber.days-num,.amber .days-num{color:#ef9f27}
+.green .days-num{color:#639922}
+
+.card-body{flex:1;padding:9px 10px;min-width:0}
+.horse-link{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#111;text-decoration:none;display:block}
+.horse-link:active{opacity:.7}
+.badge{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:5px;vertical-align:middle}
+.badge.fire{background:#fff3e0;color:#e65100}
+.badge.star{background:#e8f5e9;color:#1b5e20}
+.trainer-name{font-size:12px;color:#333;font-weight:600;margin-top:2px}
+.meta-row{font-size:11px;color:#888;margin-top:2px}
+.chips{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+.chip{font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid #e5e5e0;color:#666}
+.chip.pos1{background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20}
+
+.card-actions{display:flex;border-top:1px solid #f0f0ed}
+.action-btn{flex:1;padding:9px 4px;border:none;background:none;font-family:'Barlow',sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:#555}
+.action-btn:active{background:#f5f5f3}
+.action-btn.call{color:#185fa5}
+.action-btn.dismiss{color:#999}
+.action-btn + .action-btn{border-left:1px solid #f0f0ed}
+
+.empty{padding:48px 24px;text-align:center;color:#aaa;font-size:14px;line-height:1.8}
+.loading{padding:48px 24px;text-align:center;color:#888;font-size:13px}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a1a;color:#fff;padding:11px 22px;border-radius:20px;font-size:13px;font-weight:600;z-index:300;transition:transform .25s ease;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">Brittney Judd · Rider's Agent</div>
+  <div class="title">Opportunity Finder</div>
+</div>
+
+<div class="url-section">
+  <label>Web App URL</label>
+  <input type="url" id="webAppUrl" placeholder="Paste OpportunityFinder web app URL..." oninput="saveUrl(this.value)">
+</div>
+
+<div class="controls">
+  <button class="btn" onclick="loadHorses()">SYNC</button>
+  <button class="btn secondary" onclick="clearCalled()">Clear Called</button>
+  <span class="count-badge" id="countBadge"></span>
+</div>
+
+<div class="list" id="list">
+  <div class="empty">Tap SYNC to load opportunities</div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+var horses = [];
+var states = JSON.parse(localStorage.getItem('opp_states') || '{}');
+
+var savedUrl = localStorage.getItem('opp_app_url') || '';
+document.getElementById('webAppUrl').value = savedUrl;
+
+function saveUrl(v) { localStorage.setItem('opp_app_url', v.trim()); }
+
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); }, 2200);
+}
+
+function urgClass(days) {
+  return days >= 14 ? 'red' : days >= 7 ? 'amber' : 'green';
+}
+
+function daysSince(dateStr) {
+  if (!dateStr) return 0;
+  var parts = dateStr.split(' ');
+  var months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  if (parts.length < 3) return 0;
+  var d = new Date(parseInt(parts[2]), months[parts[1]] || 0, parseInt(parts[0]));
+  var diff = (new Date() - d) / 86400000;
+  return Math.max(0, Math.floor(diff));
+}
+
+function loadHorses() {
+  var url = (localStorage.getItem('opp_app_url') || '').trim();
+  if (!url) { toast('Paste your web app URL first'); return; }
+
+  document.getElementById('list').innerHTML = '<div class="loading">Loading opportunities...</div>';
+
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      horses = Array.isArray(data) ? data : (data.horses || []);
+      renderList();
+      toast('Loaded ' + horses.length + ' horses');
+    })
+    .catch(function() {
+      document.getElementById('list').innerHTML = '<div class="empty">Failed to load — check web app URL</div>';
+    });
+}
+
+function renderList() {
+  var visible = horses.filter(function(h) {
+    var s = states[h.horsecode] || '';
+    return s !== 'dismissed';
+  });
+
+  // Sort: called to bottom, then by days desc
+  visible.sort(function(a, b) {
+    var sa = states[a.horsecode] || '';
+    var sb = states[b.horsecode] || '';
+    if (sa === 'called' && sb !== 'called') return 1;
+    if (sb === 'called' && sa !== 'called') return -1;
+    var da = typeof a.days === 'number' ? a.days : daysSince(a.lastDate);
+    var db = typeof b.days === 'number' ? b.days : daysSince(b.lastDate);
+    return db - da;
+  });
+
+  document.getElementById('countBadge').textContent = visible.length + ' horses';
+
+  if (!visible.length) {
+    document.getElementById('list').innerHTML = '<div class="empty">No opportunities right now</div>';
+    return;
+  }
+
+  var html = '';
+  visible.forEach(function(h) {
+    var days   = typeof h.days === 'number' ? h.days : daysSince(h.lastDate);
+    var urg    = urgClass(days);
+    var state  = states[h.horsecode] || '';
+    var badge  = '';
+    if (h.topThree)   badge += ' <span class="badge fire">🔥 Top 3</span>';
+    if (h.closeMargin) badge += ' <span class="badge star">⭐ Close</span>';
+
+    // Use pre-built horseUrl from script, fall back to constructing from horsecode
+    var profileUrl = h.horseUrl ||
+                     ('https://racing.racingnsw.com.au/InteractiveForm/HorseFullForm.aspx?horsecode=' +
+                      (h.horsecode || '') + '&src=horseform');
+
+    html +=
+      '<div class="card ' + urg + (state ? ' ' + state : '') + '" id="card-' + h.horsecode + '">' +
+        '<div class="card-top">' +
+          '<div class="days-col">' +
+            '<div class="days-num">' + days + '</div>' +
+            '<div class="days-lbl">DAYS</div>' +
+          '</div>' +
+          '<div class="card-body">' +
+            '<a href="' + profileUrl + '" target="_blank" rel="noopener" class="horse-link">' +
+              esc(h.horse || h.name || '') + ' ↗' + badge +
+            '</a>' +
+            '<div class="trainer-name">' + esc(h.trainer || '') + '</div>' +
+            '<div class="meta-row">' + esc(h.track || '') + (h.lastDate ? ' · ' + h.lastDate : '') + '</div>' +
+            '<div class="chips">' +
+              (h.pos ? '<span class="chip' + (h.pos===1?' pos1':'') + '">' + h.pos + '/' + (h.field||'?') + '</span>' : '') +
+              (h.margin ? '<span class="chip">' + esc(h.margin) + '</span>' : '') +
+              (h.weight ? '<span class="chip">' + esc(h.weight) + '</span>' : '') +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="card-actions">' +
+          '<button class="action-btn call" onclick="markCalled(\'' + h.horsecode + '\')">✓ Called</button>' +
+          '<button class="action-btn dismiss" onclick="markDismissed(\'' + h.horsecode + '\')">Dismiss</button>' +
+        '</div>' +
+      '</div>';
+  });
+
+  document.getElementById('list').innerHTML = html;
+}
+
+function markCalled(code) {
+  states[code] = 'called';
+  saveStates();
+  renderList();
+  toast('Marked as called');
+}
+
+function markDismissed(code) {
+  states[code] = 'dismissed';
+  saveStates();
+  renderList();
+  toast('Dismissed');
+}
+
+function clearCalled() {
+  Object.keys(states).forEach(function(k){ if(states[k]==='called') delete states[k]; });
+  saveStates();
+  renderList();
+  toast('Called status cleared');
+}
+
+function saveStates() {
+  localStorage.setItem('opp_states', JSON.stringify(states));
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
