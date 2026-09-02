@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Opportunities">
+<title>Opportunity Finder</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#f0f0ed;color:#1a1a1a;font-family:'Barlow',sans-serif;min-height:100vh;padding-bottom:40px}
+
+.header{background:#fff;border-bottom:1px solid #e5e5e0;padding:14px 16px 10px}
+.eyebrow{font-family:'DM Mono',monospace;font-size:9px;color:#888;letter-spacing:3px;text-transform:uppercase;margin-bottom:3px}
+.title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#111}
+
+.url-bar{background:#fff;border-bottom:1px solid #e5e5e0;padding:10px 16px}
+.url-bar label{font-family:'DM Mono',monospace;font-size:9px;color:#888;letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:4px}
+.url-bar input{width:100%;background:#f5f5f3;border:1px solid #e5e5e0;border-radius:8px;padding:8px 10px;font-family:'DM Mono',monospace;font-size:11px;color:#111;outline:none}
+
+.sync-bar{background:#fff;border-bottom:1px solid #e5e5e0;padding:8px 16px;display:flex;gap:8px;align-items:center}
+.btn-sync{background:#1a1a1a;border:none;border-radius:8px;padding:9px 18px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer}
+.btn-sync:active{opacity:.8}
+.total-badge{font-family:'DM Mono',monospace;font-size:11px;color:#888;margin-left:auto}
+
+.tabs{display:flex;background:#fff;border-bottom:2px solid #e5e5e0;padding:0 12px}
+.tab{flex:1;padding:10px 4px;border:none;background:none;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#aaa;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a}
+.tab-label{}
+.tab-count{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px}
+.tab.red.active{border-bottom-color:#e24b4a;color:#e24b4a}
+.tab.amber.active{border-bottom-color:#ef9f27;color:#ef9f27}
+.tab.green.active{border-bottom-color:#639922;color:#639922}
+
+.list{padding:10px 12px}
+
+.card{background:#fff;border-radius:10px;border:1px solid #e5e5e0;overflow:hidden;border-left-width:3px;margin-bottom:8px;transition:opacity .2s}
+.card.red  {border-left-color:#e24b4a}
+.card.amber{border-left-color:#ef9f27}
+.card.green{border-left-color:#639922}
+.card.called{opacity:.4}
+
+.card-main{display:flex;align-items:stretch}
+.days-col{width:54px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;border-right:1px solid #f0f0ed}
+.days-num{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;line-height:1}
+.days-lbl{font-family:'DM Mono',monospace;font-size:8px;color:#aaa;letter-spacing:1px;margin-top:1px}
+.red  .days-num{color:#e24b4a}
+.amber .days-num{color:#ef9f27}
+.green .days-num{color:#639922}
+
+.card-body{flex:1;padding:9px 10px;min-width:0}
+.horse-row{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.horse-link{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#111;text-decoration:none}
+.horse-link:active{opacity:.7}
+.badges{display:flex;gap:3px}
+.badge{font-size:12px}
+
+.trainer-row{font-size:12px;color:#222;font-weight:600;margin-top:3px}
+.jockey-row{font-size:11px;color:#999;margin-top:1px}
+.race-row{font-size:11px;color:#666;margin-top:2px;font-family:'DM Mono',monospace}
+
+.chips{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+.chip{font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid #e5e5e0;color:#666}
+.chip.margin{background:#fef9f0;border-color:#f5d98e;color:#8a6500}
+
+.card-actions{display:flex;border-top:1px solid #f0f0ed}
+.action-btn{flex:1;padding:9px 4px;border:none;background:none;font-family:'Barlow',sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:#555}
+.action-btn:active{background:#f5f5f3}
+.action-btn.called-btn{color:#185fa5}
+.action-btn.dismiss-btn{color:#bbb}
+.action-btn+.action-btn{border-left:1px solid #f0f0ed}
+
+.empty{padding:48px 24px;text-align:center;color:#aaa;font-size:14px;line-height:2}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a1a;color:#fff;padding:11px 22px;border-radius:20px;font-size:13px;font-weight:600;z-index:300;transition:transform .25s ease;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">Brittney Judd · Rider's Agent</div>
+  <div class="title">Opportunity Finder</div>
+</div>
+
+<div class="url-bar">
+  <label>Web App URL</label>
+  <input type="url" id="webAppUrl" placeholder="Paste OpportunityFinder web app URL..." oninput="saveUrl(this.value)">
+</div>
+
+<div class="sync-bar">
+  <button class="btn-sync" onclick="loadHorses()">SYNC</button>
+  <span class="total-badge" id="totalBadge"></span>
+</div>
+
+<div class="tabs">
+  <button class="tab active" id="tab-all" onclick="switchTab('all')">
+    <span class="tab-label">All</span>
+    <span class="tab-count" id="count-all">—</span>
+  </button>
+  <button class="tab red" id="tab-call" onclick="switchTab('call')">
+    <span class="tab-label">Call Now</span>
+    <span class="tab-count" id="count-call">—</span>
+  </button>
+  <button class="tab amber" id="tab-monitor" onclick="switchTab('monitor')">
+    <span class="tab-label">Monitor</span>
+    <span class="tab-count" id="count-monitor">—</span>
+  </button>
+  <button class="tab green" id="tab-soon" onclick="switchTab('soon')">
+    <span class="tab-label">Too Soon</span>
+    <span class="tab-count" id="count-soon">—</span>
+  </button>
+</div>
+
+<div class="list" id="list">
+  <div class="empty">Paste your web app URL above then tap SYNC</div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+var horses   = [];
+var states   = JSON.parse(localStorage.getItem('opp_states_v2') || '{}');
+var activeTab = 'all';
+
+// Thresholds: Call Now = 14+ days, Monitor = 7-13 days, Too Soon = <7 days
+var CALL_NOW  = 10;
+var MONITOR   = 7;
+
+var savedUrl = localStorage.getItem('opp_url_v2') || '';
+document.getElementById('webAppUrl').value = savedUrl;
+
+function saveUrl(v){ localStorage.setItem('opp_url_v2', v.trim()); }
+
+function toast(msg){
+  var el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); },2000);
+}
+
+function tabFor(days){
+  if (days >= CALL_NOW) return 'call';
+  if (days >= MONITOR)  return 'monitor';
+  return 'soon';
+}
+
+function urg(days){
+  if (days >= CALL_NOW) return 'red';
+  if (days >= MONITOR)  return 'amber';
+  return 'green';
+}
+
+function loadHorses(){
+  var url=(localStorage.getItem('opp_url_v2')||'').trim();
+  if(!url){toast('Paste your web app URL first');return;}
+  document.getElementById('list').innerHTML='<div class="empty">Loading...</div>';
+
+  fetch(url)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      horses = data.horses || [];
+      updateCounts();
+      renderTab();
+      toast('Loaded '+horses.length+' horses');
+    })
+    .catch(function(){
+      document.getElementById('list').innerHTML='<div class="empty">Failed — check web app URL</div>';
+    });
+}
+
+function updateCounts(){
+  var all=0, call=0, monitor=0, soon=0;
+  horses.forEach(function(h){
+    if((states[h.horsecode]||'')==='dismissed') return;
+    all++;
+    var t=tabFor(h.days);
+    if(t==='call')    call++;
+    if(t==='monitor') monitor++;
+    if(t==='soon')    soon++;
+  });
+  document.getElementById('count-all').textContent     = all     || '—';
+  document.getElementById('count-call').textContent    = call    || '—';
+  document.getElementById('count-monitor').textContent = monitor || '—';
+  document.getElementById('count-soon').textContent    = soon    || '—';
+  document.getElementById('totalBadge').textContent    = horses.length+' horses';
+}
+
+function switchTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('tab-'+tab).classList.add('active');
+  renderTab();
+}
+
+function renderTab(){
+  var visible = horses.filter(function(h){
+    if((states[h.horsecode]||'')==='dismissed') return false;
+    if(activeTab==='all') return true;
+    return tabFor(h.days)===activeTab;
+  });
+
+  // Sort: called to bottom, then days descending
+  visible.sort(function(a,b){
+    var sa=states[a.horsecode]||'', sb=states[b.horsecode]||'';
+    if(sa==='called'&&sb!=='called') return 1;
+    if(sb==='called'&&sa!=='called') return -1;
+    return b.days-a.days;
+  });
+
+  if(!visible.length){
+    var labels={all:'any range',call:'10+ days',monitor:'5–9 days',soon:'under 5 days'};
+    document.getElementById('list').innerHTML=
+      '<div class="empty">No horses in this range ('+labels[activeTab]+')<br>Tap SYNC to refresh</div>';
+    return;
+  }
+
+  var html='';
+  visible.forEach(function(h){
+    var state   = states[h.horsecode]||'';
+    var urgCls  = urg(h.days);
+    var badges  = '';
+    if(h.topThree)    badges+='<span class="badge">🔥</span>';
+    if(h.closeMargin) badges+='<span class="badge">⭐</span>';
+
+    var profileUrl = h.horseUrl || ('https://racing.racingnsw.com.au/InteractiveForm/HorseFullForm.aspx?horsecode='+(h.horsecode||'')+'&src=horseform');
+
+    var raceInfo = [h.raceClass, h.dist].filter(Boolean).join(' ');
+    if(h.track) raceInfo += (raceInfo?' · ':'')+h.track;
+    if(h.lastDate) raceInfo += ' · '+h.lastDate;
+
+    html+=
+      '<div class="card '+urgCls+(state?' '+state:'')+'" id="c-'+esc(h.horsecode)+'">' +
+        '<div class="card-main">' +
+          '<div class="days-col">' +
+            '<div class="days-num">'+h.days+'</div>' +
+            '<div class="days-lbl">DAYS</div>' +
+          '</div>' +
+          '<div class="card-body">' +
+            '<div class="horse-row">' +
+              '<a href="'+esc(profileUrl)+'" target="_blank" rel="noopener" class="horse-link">'+esc(h.horse)+' ↗</a>' +
+              '<div class="badges">'+badges+'</div>' +
+            '</div>' +
+            '<div class="trainer-row">'+esc(h.trainer)+'</div>' +
+            (h.jockey?'<div class="jockey-row">'+esc(h.jockey)+'</div>':'')+
+            (raceInfo?'<div class="race-row">'+esc(raceInfo)+'</div>':'')+
+            '<div class="chips">' +
+              (h.pos?'<span class="chip">'+h.pos+'/'+(h.field||'?')+'</span>':'')+
+              (h.margin?'<span class="chip margin">'+esc(h.margin)+'</span>':'')+
+              (h.weight?'<span class="chip">'+esc(h.weight)+'</span>':'')+
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="card-actions">' +
+          '<button class="action-btn called-btn" onclick="markCalled(\''+esc(h.horsecode)+'\')">✓ Called</button>' +
+          '<button class="action-btn dismiss-btn" onclick="markDismiss(\''+esc(h.horsecode)+'\')">Dismiss</button>' +
+        '</div>' +
+      '</div>';
+  });
+
+  document.getElementById('list').innerHTML=html;
+}
+
+function markCalled(code){
+  states[code]='called';
+  save();
+  updateCounts();
+  renderTab();
+  toast('Marked as called');
+}
+
+function markDismiss(code){
+  states[code]='dismissed';
+  save();
+  updateCounts();
+  renderTab();
+  toast('Dismissed');
+}
+
+function save(){ localStorage.setItem('opp_states_v2', JSON.stringify(states)); }
+
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
+</body>
+</html>
