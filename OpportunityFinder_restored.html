@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Opportunities">
+<title>Opportunity Finder</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#f0f0ed;color:#1a1a1a;font-family:'Barlow',sans-serif;min-height:100vh;padding-bottom:100px}
+
+.header{background:#fff;border-bottom:1px solid #e5e5e0;padding:14px 16px 12px;position:sticky;top:0;z-index:100}
+.eyebrow{font-family:'DM Mono',monospace;font-size:9px;color:#888;letter-spacing:3px;text-transform:uppercase;margin-bottom:3px}
+.title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#111}
+.badges{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.badge{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:20px;border:1px solid}
+.badge.r{color:#a32d2d;border-color:#f09595;background:#fcebeb}
+.badge.a{color:#854f0b;border-color:#f0a030;background:#faeeda}
+.badge.g{color:#3b6d11;border-color:#97c459;background:#eaf3de}
+
+.filters{padding:10px 14px;border-bottom:1px solid #e5e5e0;background:#fff;display:flex;gap:5px;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+.pill{background:transparent;border:1px solid #ddd;border-radius:20px;padding:5px 12px;font-size:11px;color:#888;cursor:pointer;font-family:'DM Mono',monospace;flex-shrink:0}
+.pill.active{background:#1a1a1a;border-color:#1a1a1a;color:#fff}
+
+.toolbar{padding:10px 14px;border-bottom:1px solid #e5e5e0;background:#fff;display:flex;gap:7px;flex-wrap:wrap}
+.btn-main{background:#1a1a1a;border:none;border-radius:8px;padding:9px 14px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px}
+.btn-sm{background:transparent;border:1px solid #ddd;border-radius:8px;padding:9px 12px;color:#555;font-size:11px;cursor:pointer;font-family:'DM Mono',monospace}
+
+.list{padding:8px 12px;display:flex;flex-direction:column;gap:6px}
+
+/* CARDS */
+.card{background:#fff;border-radius:10px;border:1px solid #e5e5e0;overflow:hidden;border-left-width:3px;transition:opacity .2s}
+.card.red  {border-left-color:#e24b4a}
+.card.amber{border-left-color:#ef9f27}
+.card.green{border-left-color:#639922}
+.card.called{opacity:.45}
+
+.card-inner{display:flex;align-items:stretch}
+.days-col{width:52px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;border-right:1px solid #f0f0ed}
+.days-num{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;line-height:1}
+.days-lbl{font-family:'DM Mono',monospace;font-size:8px;color:#aaa;letter-spacing:1px;margin-top:1px}
+.red   .days-num{color:#e24b4a}
+.amber .days-num{color:#ef9f27}
+.green .days-num{color:#639922}
+
+.card-body{flex:1;padding:8px 10px;min-width:0}
+.horse-name{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:#111;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.horse-name:active{opacity:.7}
+.trainer-row{font-size:11px;color:#555;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jockey-row{font-size:11px;color:#333;font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chips{display:flex;gap:3px;margin-top:5px;flex-wrap:wrap}
+.chip{font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid #e5e5e0;color:#666;white-space:nowrap}
+.chip.pos-top {background:#eaf3de;border-color:#97c459;color:#3b6d11}
+.chip.pos-close{background:#faeeda;border-color:#f0a030;color:#854f0b}
+.chip.pos-back {background:#fcebeb;border-color:#f09595;color:#a32d2d}
+.chip.wgt{background:#e6f1fb;border-color:#85b7eb;color:#185fa5}
+
+.actions{display:flex;border-top:1px solid #f0f0ed}
+.act{flex:1;background:transparent;border:none;padding:8px 6px;font-size:10px;cursor:pointer;font-family:'DM Mono',monospace;color:#888;border-right:1px solid #f0f0ed}
+.act:last-child{border-right:none}
+.act.blue{color:#185fa5;font-weight:500}
+.act.red{color:#a32d2d}
+
+.empty{padding:50px 24px;text-align:center;color:#aaa;font-size:13px;line-height:1.8}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a1a;color:#fff;padding:11px 22px;border-radius:20px;font-size:13px;font-weight:600;z-index:300;transition:transform .25s ease;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toast" class="toast"></div>
+<script>
+var S = {
+  opps:[], filter:'all',
+  webAppUrl: localStorage.getItem('opp_v2_url') || ''
+};
+
+var TODAY = new Date(); TODAY.setHours(0,0,0,0);
+
+function daysSince(dateStr) {
+  if (!dateStr) return 0;
+  // Handle both YYYY-MM-DD and YYYYMmmDD formats
+  var d;
+  if (dateStr.indexOf('-') > 0) {
+    d = new Date(dateStr);
+  } else {
+    var mo = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    var yr = parseInt(dateStr.substring(0,4));
+    var mn = mo[dateStr.substring(4,7)];
+    var dy = parseInt(dateStr.substring(7,9));
+    d = new Date(yr, mn, dy);
+  }
+  d.setHours(0,0,0,0);
+  return Math.max(0, Math.floor((TODAY - d) / 86400000));
+}
+
+function urgClass(days) {
+  if (days >= 14) return 'red';
+  if (days >= 7)  return 'amber';
+  return 'green';
+}
+
+function load() {
+  try {
+    var s = localStorage.getItem('opp_v2_data');
+    if (s) S.opps = JSON.parse(s);
+  } catch(e) {}
+}
+
+function save() {
+  try { localStorage.setItem('opp_v2_data', JSON.stringify(S.opps)); } catch(e) {}
+}
+
+function markCalled(id) {
+  S.opps = S.opps.map(function(o){ return o.id===id ? Object.assign({},o,{status:'called'}) : o; });
+  save(); render();
+}
+
+function markDismissed(id) {
+  S.opps = S.opps.map(function(o){ return o.id===id ? Object.assign({},o,{status:'dismissed'}) : o; });
+  save(); render();
+}
+
+function syncFromWebApp() {
+  var entered = prompt('Paste your OpportunityFinder web app URL:', S.webAppUrl);
+  if (!entered) return;
+  S.webAppUrl = entered.trim();
+  localStorage.setItem('opp_v2_url', S.webAppUrl);
+  toast('Loading...');
+
+  fetch(S.webAppUrl)
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      if (data.error) { toast(data.error); return; }
+      if (!data.opportunities || !data.opportunities.length) { toast('No opportunities found'); return; }
+
+      // Merge \— if horse already exists keep status UNLESS date has changed (then reset)
+      var existing = {};
+      S.opps.forEach(function(o){ existing[o.horse+'|'+o.trainer] = o; });
+
+      S.opps = data.opportunities.map(function(o) {
+        var key = o.horse+'|'+o.trainer;
+        var prev = existing[key];
+        if (prev) {
+          // If date changed (horse raced again) \— reset to new
+          if (o.date !== prev.date) return Object.assign({},o,{status:'new'});
+          // Same race \— keep existing status
+          return Object.assign({},o,{status: prev.status});
+        }
+        return Object.assign({},o,{status:'new'});
+      });
+
+      save(); render();
+      toast('Loaded ' + data.opportunities.length + ' horses \✓');
+    })
+    .catch(function(){ toast('Sync failed \— check URL'); });
+}
+
+function toast(msg) {
+  var el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); },2400);
+}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function ord(n){ var s=['th','st','nd','rd'],v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
+
+function render() {
+  var all = S.opps;
+  all.forEach(function(o){ o._days = daysSince(o.date); });
+
+  // Sort: most days first
+  all.sort(function(a,b){ return b._days - a._days; });
+
+  // Visible = not dismissed
+  var visible = all.filter(function(o){ return o.status !== 'dismissed'; });
+
+  var redCount   = visible.filter(function(o){ return o._days>=14 && o.status!=='called'; }).length;
+  var amberCount = visible.filter(function(o){ return o._days>=7 && o._days<14 && o.status!=='called'; }).length;
+  var greenCount = visible.filter(function(o){ return o._days<7 && o.status!=='called'; }).length;
+  var calledCount= visible.filter(function(o){ return o.status==='called'; }).length;
+
+  var filtered = visible;
+  if (S.filter==='red')    filtered = visible.filter(function(o){ return o._days>=14 && o.status!=='called'; });
+  if (S.filter==='amber')  filtered = visible.filter(function(o){ return o._days>=7&&o._days<14 && o.status!=='called'; });
+  if (S.filter==='green')  filtered = visible.filter(function(o){ return o._days<7 && o.status!=='called'; });
+  if (S.filter==='called') filtered = visible.filter(function(o){ return o.status==='called'; });
+
+  var cards = '';
+  if (!filtered.length) {
+    cards = '<div class="empty">' +
+      (S.opps.length === 0 ? 'No opportunities yet \— tap \↻ Load' : 'Nothing in this category') +
+    '</div>';
+  } else {
+    filtered.forEach(function(o) {
+      var days   = o._days;
+      var urg    = urgClass(days);
+      var called = o.status === 'called';
+
+      var isTop3  = o.pos > 0 && o.pos <= 3;
+      var mNum    = o.marginNum || 0;
+      var isStar  = !isTop3 && mNum > 0 && mNum <= 2;
+      var badge   = isTop3 ? ' \\ud83d\\udd25' : isStar ? ' \\u2b50' : '';
+
+      var posClass = isTop3 ? 'pos-top' : isStar ? 'pos-close' : 'pos-back';
+      var posStr   = o.pos > 0 ? ord(o.pos) + (o.field ? '/'+o.field : '') : '?';
+
+      var callBtn = called
+        ? '<button class="act blue" onclick="markCalled(\''+o.id+'\')">\✓ Called</button>'
+        : '<button class="act blue" onclick="markCalled(\''+o.id+'\')">Called</button>';
+
+      cards +=
+        '<div class="card '+urg+(called?' called':'')+'">' +
+          '<div class="card-inner">' +
+            '<div class="days-col">' +
+              '<div class="days-num">'+days+'</div>' +
+              '<div class="days-lbl">DAYS</div>' +
+            '</div>' +
+            '<div class="card-body">' +
+              '<div class="horse-name" onclick="window.open(\''+esc(o.horseUrl)+'\',\'_blank\')">'+esc(o.horse)+badge+' <span style="font-size:10px;color:#ccc">\\u2197</span></div>' +
+              '<div class="trainer-row">'+esc(o.trainer)+' \\u00b7 '+esc(o.track)+' \\u00b7 '+esc(o.dateDisp)+'</div>' +
+              '<div class="jockey-row">'+esc(o.jockey||'')+'</div>' +
+              '<div class="chips">' +
+                '<span class="chip '+posClass+'">'+posStr+'</span>' +
+                (o.dist ? '<span class="chip">'+esc(o.dist)+'</span>' : '') +
+                (o.bm   ? '<span class="chip">'+esc(o.bm)+'</span>'   : '') +
+                (o.weight ? '<span class="chip wgt">'+esc(o.weight)+'</span>' : '') +
+                (o.margin ? '<span class="chip">'+esc(o.margin)+'</span>' : '') +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="actions">' +
+            callBtn +
+            '<button class="act red" onclick="markDismissed(\''+o.id+'\')">Dismiss</button>' +
+          '</div>' +
+        '</div>';
+    });
+  }
+
+  function pill(k,lbl,n){
+    return '<button class="pill'+(S.filter===k?' active':'')+'" onclick="S.filter=\''+k+'\';render()">'+lbl+' ('+n+')</button>';
+  }
+
+  document.getElementById('root').innerHTML =
+    '<div class="header">' +
+      '<div class="eyebrow">Brittney Judd \\u00b7 Rider\'s Agent</div>' +
+      '<div class="title">Opportunity Finder</div>' +
+      '<div class="badges">' +
+        '<span class="badge r">'+redCount+' call now</span>' +
+        '<span class="badge a">'+amberCount+' reach out</span>' +
+        '<span class="badge g">'+greenCount+' too soon</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="filters">' +
+      pill('all','All',visible.length) +
+      pill('red','Call now \\ud83d\\udd34',redCount) +
+      pill('amber','Reach out \\ud83d\\udfe1',amberCount) +
+      pill('green','Too soon \\ud83d\\udfe2',greenCount) +
+      pill('called','Called \✓',calledCount) +
+    '</div>' +
+    '<div class="toolbar">' +
+      '<button class="btn-main" onclick="syncFromWebApp()">\↻ Load opportunities</button>' +
+      '<button class="btn-sm" onclick="save();toast(\'Saved \✓\')">\\u2191 Save</button>' +
+    '</div>' +
+    '<div class="list">'+cards+'</div>';
+}
+
+load(); render();
+</script>
+</body>
+</html>
