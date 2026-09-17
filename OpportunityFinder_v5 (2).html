@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Opportunities">
+<title>Opportunity Finder</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#f0f0ed;color:#1a1a1a;font-family:'Barlow',sans-serif;min-height:100vh;padding-bottom:60px}
+.header{background:#fff;border-bottom:1px solid #e5e5e0;padding:14px 16px 12px;position:sticky;top:0;z-index:100}
+.eyebrow{font-family:'DM Mono',monospace;font-size:9px;color:#888;letter-spacing:3px;text-transform:uppercase;margin-bottom:3px}
+.title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#111}
+.url-bar{background:#fff;border-bottom:1px solid #e5e5e0;padding:10px 14px}
+.url-bar label{font-family:'DM Mono',monospace;font-size:9px;color:#888;letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:4px}
+.url-bar input{width:100%;background:#f5f5f3;border:1px solid #e5e5e0;border-radius:8px;padding:8px 10px;font-family:'DM Mono',monospace;font-size:11px;color:#111;outline:none}
+.toolbar{background:#fff;border-bottom:1px solid #e5e5e0;padding:8px 14px;display:flex;gap:8px;align-items:center}
+.btn-sync{background:#1a1a1a;border:none;border-radius:8px;padding:9px 16px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer}
+.btn-sync:active{opacity:.8}
+.badge-counts{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.bc{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:12px;border:1px solid}
+.bc.r{color:#c0392b;border-color:#e74c3c;background:#fef0f0}
+.bc.a{color:#8a5700;border-color:#f39c12;background:#fef9e7}
+.bc.g{color:#1a6b1a;border-color:#27ae60;background:#eafaf1}
+
+/* Region tabs - scrollable */
+.region-tabs{background:#fff;border-bottom:2px solid #e5e5e0;padding:0 14px;display:flex;gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.region-tabs::-webkit-scrollbar{display:none}
+.rtab{background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;padding:10px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#aaa;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.rtab.active{color:#1a1a1a;border-bottom-color:#1a1a1a}
+
+/* Urgency filter pills */
+.filters{background:#fff;border-bottom:1px solid #e5e5e0;padding:7px 14px;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.pill{background:transparent;border:1px solid #ddd;border-radius:20px;padding:4px 12px;font-size:11px;color:#888;cursor:pointer;font-family:'DM Mono',monospace;white-space:nowrap;flex-shrink:0}
+.pill.active{background:#1a1a1a;border-color:#1a1a1a;color:#fff}
+.pill.p-red.active{background:#c0392b;border-color:#c0392b}
+.pill.p-amber.active{background:#d68910;border-color:#d68910}
+.pill.p-green.active{background:#1a6b1a;border-color:#1a6b1a}
+.pill.p-called.active{background:#555;border-color:#555}
+
+.list{padding:8px 12px;display:flex;flex-direction:column;gap:6px}
+.card{background:#fff;border-radius:10px;border:1px solid #e5e5e0;overflow:hidden;border-left-width:3px}
+.card.cr{border-left-color:#e24b4a}
+.card.ca{border-left-color:#ef9f27}
+.card.cg{border-left-color:#639922}
+.card.called{opacity:.4}
+.card-inner{display:flex;align-items:stretch}
+.days-col{width:52px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;border-right:1px solid #f0f0ed}
+.days-num{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;line-height:1}
+.days-lbl{font-family:'DM Mono',monospace;font-size:8px;color:#aaa;letter-spacing:1px;margin-top:1px}
+.cr .days-num{color:#e24b4a}
+.ca .days-num{color:#ef9f27}
+.cg .days-num{color:#639922}
+.card-body{flex:1;padding:8px 10px;min-width:0}
+.horse-link{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#111;text-decoration:none;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.horse-link:active{opacity:.7}
+.trainer-row{font-size:12px;color:#333;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jockey-row{font-size:11px;color:#999;margin-top:1px}
+.meta-row{font-size:11px;color:#666;font-family:'DM Mono',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chips{display:flex;gap:3px;margin-top:5px;flex-wrap:wrap}
+.chip{font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid #e5e5e0;color:#666}
+.chip.wgt{background:#e6f1fb;border-color:#85b7eb;color:#185fa5}
+.chip.marg{background:#fef9f0;border-color:#f0c070;color:#7a5500}
+.actions{display:flex;border-top:1px solid #f0f0ed}
+.act{flex:1;background:transparent;border:none;padding:9px 4px;font-size:11px;cursor:pointer;font-family:'Barlow',sans-serif;font-weight:600;color:#888;border-right:1px solid #f0f0ed}
+.act:last-child{border-right:none}
+.act:active{background:#f5f5f3}
+.act.called-btn{color:#185fa5}
+.act.dismiss-btn{color:#ccc}
+.search-bar{background:#fff;border-bottom:1px solid #e5e5e0;padding:8px 14px}
+.search-bar input{width:100%;background:#f5f5f3;border:1px solid #e5e5e0;border-radius:8px;padding:8px 10px;font-family:'Barlow',sans-serif;font-size:13px;color:#111;outline:none}
+.search-bar input::placeholder{color:#bbb}
+.empty{padding:50px 24px;text-align:center;color:#aaa;font-size:13px;line-height:2}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a1a;color:#fff;padding:11px 22px;border-radius:20px;font-size:13px;font-weight:600;z-index:300;transition:transform .25s ease;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">Brittney Judd · Rider's Agent</div>
+  <div class="title">Opportunity Finder</div>
+</div>
+
+<div class="url-bar">
+  <label>Web App URL</label>
+  <input type="url" id="urlInput" placeholder="Paste OpportunityFinder web app URL..." oninput="saveUrl(this.value)">
+</div>
+
+<div class="toolbar">
+  <button class="btn-sync" onclick="loadHorses()">↻ Sync</button>
+  <div class="badge-counts">
+    <span class="bc r" id="bc-red" style="display:none"></span>
+    <span class="bc a" id="bc-amber" style="display:none"></span>
+    <span class="bc g" id="bc-green" style="display:none"></span>
+  </div>
+</div>
+
+<!-- Region tabs -->
+<div class="region-tabs">
+  <button class="rtab active" id="rt-all"    onclick="setRegion('all')">All</button>
+  <button class="rtab"        id="rt-ne"     onclick="setRegion('ne')">New England &amp; Hunter</button>
+  <button class="rtab"        id="rt-rivers" onclick="setRegion('rivers')">Northern Rivers</button>
+  <button class="rtab"        id="rt-west"   onclick="setRegion('west')">Western</button>
+</div>
+
+<!-- Urgency filter pills -->
+<div class="filters">
+  <button class="pill active"   id="pill-all"    onclick="setFilter('all')">All</button>
+  <button class="pill p-red"    id="pill-red"    onclick="setFilter('red')">Call now 🔴</button>
+  <button class="pill p-amber"  id="pill-amber"  onclick="setFilter('amber')">Reach out 🟡</button>
+  <button class="pill p-green"  id="pill-green"  onclick="setFilter('green')">Too soon 🟢</button>
+  <button class="pill p-called" id="pill-called" onclick="setFilter('called')">Called ✓</button>
+</div>
+
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="Search by class, distance, trainer, track..." oninput="render()">
+</div>
+<div class="list" id="list">
+  <div class="empty">Paste your web app URL above then tap ↻ Sync</div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+var horses  = [];
+var filter  = 'all';
+var region  = 'all';
+var RED_DAYS   = 14;
+var AMBER_DAYS = 7;
+
+// Region track lists
+var REGIONS = {
+  ne: [
+    'Tamworth','Gunnedah','Quirindi','Narrabri','Moree',
+    'Armidale','Inverell','Glen Innes','Walcha','Warialda','Bingara','Tenterfield',
+    'Muswellbrook','Scone','Maitland','Cessnock','Singleton'
+  ],
+  rivers: [
+    'Grafton','Casino','Lismore','Murwillumbah','Coffs Harbour',
+    'Kempsey','Taree','Tuncurry','Port Macquarie','Ballina'
+  ],
+  west: [
+    'Dubbo','Wellington','Narromine','Warren','Gilgandra',
+    'Coonabarabran','Coonamble','Trangie','Nyngan','Walgett',
+    'Collarenebri','Geurie','Mendooran','Mudgee','Bourke',
+    'Brewarrina','Lightning Ridge','Orange','Bathurst','Parkes',
+    'Forbes','Cowra','Young','Condobolin'
+  ]
+};
+
+var WEB_URL_KEY = 'opp_weburl_v4';
+function getSearch(){ return document.getElementById('searchInput').value.toLowerCase().trim(); }
+var savedUrl = localStorage.getItem(WEB_URL_KEY) || '';
+document.getElementById('urlInput').value = savedUrl;
+function saveUrl(v){ localStorage.setItem(WEB_URL_KEY, v.trim()); }
+function getUrl(){ return (localStorage.getItem(WEB_URL_KEY)||'').trim(); }
+
+function toast(msg){
+  var el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); },2000);
+}
+function urgOf(days){ return days>=RED_DAYS?'red':days>=AMBER_DAYS?'amber':'green'; }
+function cardCls(days){ return days>=RED_DAYS?'cr':days>=AMBER_DAYS?'ca':'cg'; }
+
+function inRegion(h) {
+  if (region === 'all') return true;
+  var tracks = REGIONS[region] || [];
+  var t = (h.track || '').toLowerCase();
+  for (var i=0;i<tracks.length;i++) {
+    if (t === tracks[i].toLowerCase()) return true;
+  }
+  return false;
+}
+
+function loadHorses(){
+  var url=getUrl();
+  if(!url){ toast('Paste your web app URL first'); return; }
+  document.getElementById('list').innerHTML='<div class="empty">Loading...</div>';
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      horses=data.horses||[];
+      render();
+      toast('Loaded '+horses.length+' horses');
+    })
+    .catch(function(){
+      document.getElementById('list').innerHTML='<div class="empty">Failed — check URL and try again</div>';
+    });
+}
+
+function setRegion(r){
+  region=r;
+  document.querySelectorAll('.rtab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('rt-'+r).classList.add('active');
+  render();
+}
+
+function setFilter(f){
+  filter=f;
+  document.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('pill-'+f).classList.add('active');
+  render();
+}
+
+function render(){
+  var red=0,amber=0,green=0,calledCount=0;
+  var q2 = getSearch();
+  horses.forEach(function(h){
+    if(!inRegion(h)) return;
+    if(h.state==='dismissed') return;
+    if(q2){
+      var hay=[h.horse,h.trainer,h.track,h.raceClass,h.dist,h.jockey,h.lastDate].join(' ').toLowerCase();
+      if(hay.indexOf(q2)===-1) return;
+    }
+    if(h.state==='called'){ calledCount++; return; }
+    var u=urgOf(h.days);
+    if(u==='red') red++;
+    if(u==='amber') amber++;
+    if(u==='green') green++;
+  });
+
+  var bcR=document.getElementById('bc-red');
+  var bcA=document.getElementById('bc-amber');
+  var bcG=document.getElementById('bc-green');
+  bcR.textContent=red+' call now';   bcR.style.display=red?'':'none';
+  bcA.textContent=amber+' reach out'; bcA.style.display=amber?'':'none';
+  bcG.textContent=green+' too soon';  bcG.style.display=green?'':'none';
+
+  var q = getSearch();
+  var visible=horses.filter(function(h){
+    if(!inRegion(h)) return false;
+    if(h.state==='dismissed') return false;
+    if(filter==='called') return h.state==='called';
+    if(h.state==='called'&&filter!=='all') return false;
+    if(filter!=='all'&&filter!=='called'&&urgOf(h.days)!==filter) return false;
+    // Search filter — match any field
+    if(q){
+      var hay=[h.horse,h.trainer,h.track,h.raceClass,h.dist,h.jockey,h.lastDate]
+        .join(' ').toLowerCase();
+      if(hay.indexOf(q)===-1) return false;
+    }
+    return true;
+  });
+
+  visible.sort(function(a,b){
+    if(a.state==='called'&&b.state!=='called') return 1;
+    if(b.state==='called'&&a.state!=='called') return -1;
+    return b.days-a.days;
+  });
+
+  if(!visible.length){
+    document.getElementById('list').innerHTML='<div class="empty">Nothing here — tap ↻ Sync to refresh</div>';
+    return;
+  }
+
+  var html='';
+  visible.forEach(function(h){
+    var cls  = cardCls(h.days);
+    var fire = h.topThree    ? '🔥 ' : '';
+    var star = h.closeMargin ? '⭐ ' : '';
+    var horseName = s(h.horse.replace(/\s*\([^)]*\)/g,'').trim());
+    var searchUrl = h.horseUrl || ('https://www.google.com/search?q='+encodeURIComponent(h.horse)+'+horse+racing+NSW');
+    var meta = [h.raceClass,h.dist,h.track,h.lastDate].filter(Boolean).join(' · ');
+
+    html+=
+      '<div class="card '+cls+(h.state?' '+h.state:'')+'">' +
+        '<div class="card-inner">' +
+          '<div class="days-col">' +
+            '<div class="days-num">'+h.days+'</div>' +
+            '<div class="days-lbl">DAYS</div>' +
+          '</div>' +
+          '<div class="card-body">' +
+            '<a href="'+searchUrl+'" target="_blank" rel="noopener" class="horse-link">'+fire+star+horseName+' ↗</a>' +
+            '<div class="trainer-row">'+s(h.trainer)+'</div>' +
+            (h.jockey?'<div class="jockey-row">'+s(h.jockey)+'</div>':'')+
+            (meta?'<div class="meta-row">'+s(meta)+'</div>':'')+
+            '<div class="chips">' +
+              (h.pos?'<span class="chip">'+h.pos+'/'+(h.field||'?')+'</span>':'')+
+              (h.margin?'<span class="chip marg">'+s(h.margin)+'</span>':'')+
+              (h.weight?'<span class="chip wgt">'+s(h.weight)+'</span>':'')+
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="actions">' +
+          '<button class="act called-btn" onclick="markCalled(\''+s(h.horsecode)+'\',\''+s(h.dateSort||'')+'\')">✓ Called</button>' +
+          '<button class="act dismiss-btn" onclick="markDismiss(\''+s(h.horsecode)+'\',\''+s(h.dateSort||'')+'\')">Dismiss</button>' +
+        '</div>' +
+      '</div>';
+  });
+
+  document.getElementById('list').innerHTML=html;
+}
+
+function markCalled(code,dateSort){
+  saveState(code,'called',dateSort);
+  horses.forEach(function(h){ if(h.horsecode===code) h.state='called'; });
+  render(); toast('Saved — Called ✓');
+}
+
+function markDismiss(code,dateSort){
+  saveState(code,'dismissed',dateSort);
+  horses.forEach(function(h){ if(h.horsecode===code) h.state='dismissed'; });
+  render(); toast('Dismissed');
+}
+
+function saveState(code,state,dateSort){
+  var url=getUrl();
+  if(!url) return;
+  fetch(url+'?action=setState&horsecode='+encodeURIComponent(code)+'&state='+state+'&dateSort='+encodeURIComponent(dateSort||''))
+    .catch(function(){});
+}
+
+function s(v){
+  return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
+</body>
+</html>
